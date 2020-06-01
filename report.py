@@ -31,7 +31,7 @@ def find_driver_version(nic_info):
     return re.sub('\n', '', str(re.search(pattern_driver, nic_info).group(0)
                                 + re.sub('  Version:', '', re.search(pattern_version, nic_info).group(0)))
                   + ", "
-                  + re.sub('Firmware Version', 'FV', re.search(pattern_fv, nic_info).group(0)))
+                  + re.sub('Firmware Version', 'FW', re.search(pattern_fv, nic_info).group(0)))
 
 
 def find_bios_info():
@@ -87,7 +87,8 @@ def find_version_in_site(url):
         for i in ent:
             if re.match('ESXi 6.0 U3,(.*?)\n', i):
                 result = result + i
-    return result
+                break
+    return re.sub(',', ', ', result)
 
 
 def main():
@@ -127,15 +128,15 @@ def main():
         devices = set()
 
         for key in device_map:
-
             if key.find('82580') != -1:
                 devices.add('D2755')
             else:
                 devices.add(re.sub('\)', '%29', re.sub('\(', '%28', re.sub(' ', '+', key))))
             print(key + ' -> ' + device_map[key])
-        print()
+        print('-------------------------------------------------------')
+        print('VMWare Compatibility Matrix:')
         for i in devices:
-            print(re.sub('%29', ')', re.sub('%28', '(', re.sub('\+', ' ', i))) + ' drivers in Internet: ')
+            print(re.sub('%29', ')', re.sub('%28', '(', re.sub('\+', ' ', i))))
             print(find_version_in_site(
                 r'https://www.vmware.com/resources/compatibility/vcl/result.php?search={}&searchCategory=all'.format(
                     i)))
