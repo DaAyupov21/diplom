@@ -78,17 +78,18 @@ def find_version_in_site(url):
             break
         break
     resp_d = urlopen(url_d)
+
     html_d = resp_d.read().decode('utf-8')
     result = ''
     with open('thml_https.txt', 'w', encoding='utf-8') as file:
-        file.write(str(html_d))
+        file.write(re.sub('&quot;', '\"', str(html_d)))
     with open('thml_https.txt', 'r', encoding='utf-8') as file:
         ent = file.readlines()
         for i in ent:
-            if re.match('ESXi 6.0 U3,(.*?)\n', i):
+            if re.match('"ESXi 6.0 U3",(.*?)\n', i):
                 result = result + i
                 break
-    return re.sub(',', ', ', result)
+    return re.sub('"N/A", "", "Partner Async", "vmklinux", ', '', re.sub(',', ', ', result))
 
 
 def main():
@@ -133,7 +134,8 @@ def main():
             else:
                 devices.add(re.sub('\)', '%29', re.sub('\(', '%28', re.sub(' ', '+', key))))
             print(key + ' -> ' + device_map[key])
-        print('-------------------------------------------------------')
+        print(
+            '-------------------------------------------------------------------------------------------------------------')
         print('VMWare Compatibility Matrix:')
         for i in devices:
             print(re.sub('%29', ')', re.sub('%28', '(', re.sub('\+', ' ', i))))
